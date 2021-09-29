@@ -1,0 +1,7 @@
+PORT=1323
+DB_HOST=echo-demo-mysql8
+DB_PORT="3306"
+DB_USER="root"
+DB_PASS="password"
+DB_NAME="echo-demo"
+APP_URL="https://stg-echo.com"

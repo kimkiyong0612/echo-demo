@@ -1,0 +1,5 @@
+# 開発用
+development:
+  dialect: mysql
+  dir: migrations
+  datasource: root:password@tcp(127.0.0.1:13326)/coeto?charset=utf8mb4&collation=utf8mb4_general_ci&parseTime=true
