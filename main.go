@@ -1,8 +1,8 @@
 package main
 
 import (
-	"echo-demo/model"
-	"echo-demo/web"
+	"echo-demo/api/model"
+	"echo-demo/api/web"
 	"fmt"
 	"net/url"
 	"os"

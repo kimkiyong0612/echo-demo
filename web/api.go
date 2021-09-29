@@ -1,7 +1,7 @@
 package web
 
 import (
-	"echo-demo/model"
+	"echo-demo/api/model"
 	"net/url"
 	"time"
 

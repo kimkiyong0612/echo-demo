@@ -1,4 +1,4 @@
-module echo-demo
+module echo-demo/api
 
 go 1.16
 

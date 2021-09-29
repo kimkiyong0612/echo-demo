@@ -1,3 +1,3 @@
 # Run the app
 run:
-	go build && ./echo-demo
+	go build && ./api
