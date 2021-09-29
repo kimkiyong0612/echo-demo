@@ -47,7 +47,7 @@ func (api *API) GetAllUser(ctx echo.Context) error {
 func (api *API) CreateUser(ctx echo.Context) error {
 	var data CreateUserRequest
 	if err := ctx.Bind(data); err != nil {
-		return err
+		return echo.ErrBadRequest
 	}
 	// TODO:query
 	var u model.User
@@ -68,7 +68,7 @@ func (api *API) GetUser(ctx echo.Context) error {
 func (api *API) UpdateUser(ctx echo.Context) error {
 	id := ctx.Param("id")
 	_ = id
-	// TODO:query
+	// TODO:get user query
 	var user model.User
 	return ctx.JSON(http.StatusOK, NewUserResponse(user))
 }
