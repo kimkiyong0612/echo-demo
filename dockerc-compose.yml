@@ -19,4 +19,4 @@ services:
 volumes:
   mysql-volume:
     external:
-      name: primal-honey-mysql8_volume
+      name: echo-demo-mysql8_volume

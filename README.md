@@ -9,3 +9,9 @@ validator https://github.com/go-playground/validator
 logrus https://github.com/sirupsen/logrus
 godotenv https://github.com/joho/godotenv
 ```
+
+## init
+- create volume for docker
+```zsh
+docker volume create echo-demo-mysql8_volume
+```
