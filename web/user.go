@@ -8,11 +8,10 @@ import (
 )
 
 type CreateUserRequest struct {
-	Name string `json:"name"`
+	Name string `json:"name" validate:"required"`
 }
 
 type UpdateUserRequest struct {
-	ID   int64  `json:"id"`
 	Name string `json:"name"`
 }
 
