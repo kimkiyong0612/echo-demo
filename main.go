@@ -8,8 +8,6 @@ import (
 	"os"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -45,21 +43,9 @@ func main() {
 		return
 	}
 
-	// create router
-	e := echo.New()
-
-	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
-	// Routes
-	e.GET("/users", api.GetAllUser)
-	e.POST("/users", api.CreateUser)
-	e.GET("/users/:id", api.GetUser)
-	e.PUT("/users/:id", api.UpdateUser)
-	e.DELETE("/users/:id", api.DeleteUser)
-
-	// Start server
+	// Create router
+	e := NewRouter(api)
+	// run server
 	e.Logger.Fatal(e.Start(os.Getenv("PORT")))
 
 }
