@@ -1,3 +1,4 @@
+GO_ENV=develop
 PORT=1323
 DB_HOST=echo-demo-mysql8
 DB_PORT="3306"
