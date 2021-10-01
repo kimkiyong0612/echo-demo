@@ -96,16 +96,16 @@ func TestMain(t *testing.T) {
 	}
 
 	// create handler
-	api, err := web.NewAPI(repo, appURL)
+	testApi, err := web.NewAPI(repo, appURL)
 	if err != nil {
 		log.Error("[ERROR] NewAPI:", err.Error())
 		return
 	}
 
 	// create router
-	router := NewRouter(api)
+	router := NewRouter(testApi)
 
-	// test server up
+	// run test server
 	server := httptest.NewServer(router)
 	defer server.Close()
 
