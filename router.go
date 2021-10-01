@@ -15,7 +15,7 @@ func NewRouter(api *web.API) *echo.Echo {
 	// Debug mode
 	// e.Debug = true
 
-	// Middleware
+	// Middleware TODO:auth
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(web.WithSessionUser)
