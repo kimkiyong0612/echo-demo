@@ -8,22 +8,24 @@ import (
 )
 
 type CreateUserRequest struct {
-	Name string `json:"name" validate:"required"`
+	// allow empty
+	UserName string `json:"username" validate:"required"`
 }
 
 type UpdateUserRequest struct {
-	Name string `json:"name"`
+	// allow empty
+	UserName *string `json:"username"`
 }
 
 type UserResponse struct {
-	ID   int64  `json:"id"`
-	Name string `json:"name"`
+	ID       string `json:"id"`
+	UserName string `json:"username"`
 }
 
 func NewUserResponse(user model.User) UserResponse {
 	result := UserResponse{
-		ID:   user.ID,
-		Name: user.Username,
+		ID:       user.PublicID,
+		UserName: user.Username,
 	}
 	return result
 }
@@ -36,46 +38,99 @@ func NewUsersResponse(users []model.User) []UserResponse {
 	return result
 }
 
+// GET /users/
 func (api *API) GetAllUser(ctx echo.Context) error {
 	// TODO:query
 	var users []model.User
 	return ctx.JSON(http.StatusOK, NewUsersResponse(users))
 }
 
-// POST users
+// POST /users/
 func (api *API) CreateUser(ctx echo.Context) error {
 	var data CreateUserRequest
 	if err := ctx.Bind(data); err != nil {
 		return echo.ErrBadRequest
 	}
-	// TODO:query
-	var u model.User
+
+	id, err := api.Repo.CreateUser(data.UserName)
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
+
+	u, err := api.Repo.GetUserByID(id)
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
+
 	return ctx.JSON(http.StatusCreated, NewUserResponse(u))
 }
 
-// GET users/{id}
+// GET /users/{id}
 func (api *API) GetUser(ctx echo.Context) error {
+	id, _ := ctx.Get(UserIDCtxKey).(string)
 
-	id := ctx.Param("id")
-	_ = id
-	// TODO:search by userID
-	var user model.User
-	return ctx.JSON(http.StatusOK, NewUserResponse(user))
+	u, err := api.Repo.GetUserByPublicID(id)
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
+	return ctx.JSON(http.StatusOK, NewUserResponse(u))
 }
 
-// PATCH users/{id}
+// PATCH /users/{id}
 func (api *API) UpdateUser(ctx echo.Context) error {
-	id := ctx.Param("id")
-	_ = id
-	// TODO:get user query
-	var user model.User
-	return ctx.JSON(http.StatusOK, NewUserResponse(user))
+	var data UpdateUserRequest
+	if err := ctx.Bind(data); err != nil {
+		return echo.ErrBadRequest
+	}
+
+	id, _ := ctx.Get(UserIDCtxKey).(string)
+	u, err := api.Repo.GetUserByPublicID(id)
+	if err != nil {
+		return echo.ErrBadRequest
+	}
+
+	if data.UserName != nil {
+		u.Username = *data.UserName
+	}
+
+	_, err = api.Repo.UpdateUserByID(u)
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
+
+	u, err = api.Repo.GetUserByPublicID(id)
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
+
+	return ctx.JSON(http.StatusOK, NewUserResponse(u))
 }
 
-// DELETE users/{id}
+// DELETE /users/{id}
 func (api *API) DeleteUser(ctx echo.Context) error {
-	id := ctx.Param("id")
-	_ = id
-	// TODO:query
+	id, _ := ctx.Get(UserIDCtxKey).(string)
+
+	u, err := api.Repo.GetUserByPublicID(id)
+	if err != nil {
+		return echo.ErrBadRequest
+	}
+
+	_, err = api.Repo.DeleteUserByID(u.ID)
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
 	return ctx.NoContent(http.StatusNoContent)
+}
+
+const UserIDCtxKey string = "userID"
+
+func RequireParamUserID(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		id := ctx.Param("id")
+		if id == "" {
+			return echo.ErrBadRequest
+		}
+		ctx.Set(UserIDCtxKey, id)
+		return nil
+	}
 }

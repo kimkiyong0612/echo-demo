@@ -19,6 +19,9 @@ func NewRouter(api *web.API) *echo.Echo {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
+	groupUserID := e.Group("v1/users/:id")
+	groupUserID.Use(web.RequireParamUserID)
+
 	// Health check
 	e.GET("/health", healthCheckHandler)
 

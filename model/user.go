@@ -5,10 +5,11 @@ import (
 )
 
 type UserRepository interface {
-	CreateUser(user User) (int64, error)
+	CreateUser(username string) (int64, error)
 	GetUsers() ([]User, error)
 	GetUserByID(id int64) (User, error)
-	UpdateUserByID(user User, id int64) (int64, error)
+	GetUserByPublicID(id string) (User, error)
+	UpdateUserByID(user User) (int64, error)
 	DeleteUserByID(id int64) (int64, error)
 }
 
@@ -42,6 +43,11 @@ const (
 	WHERE deleted_at IS NULL AND id = ? ;
 	`
 
+	selectUserByPublicIDQuery = `
+	SELECT * FROM users
+	WHERE deleted_at IS NULL AND public_id = ? ;
+	`
+
 	updateUserByIDQuery = `
 		UPDATE users
 			SET username = :Username,
@@ -55,8 +61,9 @@ const (
 	`
 )
 
-func (repo *SqlxRepository) CreateUser(user User) (int64, error) {
-	result, err := repo.db.Exec(insertUserQuery, user.PublicID, user.Username)
+func (repo *SqlxRepository) CreateUser(username string) (int64, error) {
+	publicID, _ := GenerateRandomString(10)
+	result, err := repo.db.Exec(insertUserQuery, publicID, username)
 	if err != nil {
 		return 0, err
 	}
@@ -73,9 +80,15 @@ func (repo *SqlxRepository) GetUserByID(id int64) (User, error) {
 	var user User
 	err := repo.db.Get(&user, selectUserByIDQuery, id)
 	return user, err
-
 }
-func (repo *SqlxRepository) UpdateUserByID(user User, id int64) (int64, error) {
+
+func (repo *SqlxRepository) GetUserByPublicID(id string) (User, error) {
+	var user User
+	err := repo.db.Get(&user, selectUserByPublicIDQuery, id)
+	return user, err
+}
+
+func (repo *SqlxRepository) UpdateUserByID(user User) (int64, error) {
 	result, err := repo.db.NamedExec(updateUserByIDQuery, user)
 	if err != nil {
 		return 0, err
