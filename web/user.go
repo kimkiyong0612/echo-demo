@@ -1,6 +1,7 @@
 package web
 
 import (
+	"database/sql"
 	"echo-demo/api/model"
 	"net/http"
 
@@ -40,8 +41,10 @@ func NewUsersResponse(users []model.User) []UserResponse {
 
 // GET /users/
 func (api *API) GetAllUser(ctx echo.Context) error {
-	// TODO:query
-	var users []model.User
+	users, err := api.Repo.GetUsers()
+	if err != nil {
+		return echo.ErrInternalServerError
+	}
 	return ctx.JSON(http.StatusOK, NewUsersResponse(users))
 }
 
@@ -67,12 +70,14 @@ func (api *API) CreateUser(ctx echo.Context) error {
 
 // GET /users/{id}
 func (api *API) GetUser(ctx echo.Context) error {
-	id, _ := ctx.Get(UserIDCtxKey).(string)
-
+	id := ctx.Param("id")
 	u, err := api.Repo.GetUserByPublicID(id)
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		return echo.ErrInternalServerError
+	} else if err != sql.ErrNoRows {
+		return echo.ErrBadRequest
 	}
+
 	return ctx.JSON(http.StatusOK, NewUserResponse(u))
 }
 
@@ -83,10 +88,12 @@ func (api *API) UpdateUser(ctx echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	id, _ := ctx.Get(UserIDCtxKey).(string)
+	id := ctx.Param("id")
 	u, err := api.Repo.GetUserByPublicID(id)
-	if err != nil {
-		return echo.ErrBadRequest
+	if err != nil && err != sql.ErrNoRows {
+		return echo.ErrInternalServerError
+	} else if err != sql.ErrNoRows {
+		return echo.ErrBadGateway
 	}
 
 	if data.UserName != nil {
@@ -108,11 +115,12 @@ func (api *API) UpdateUser(ctx echo.Context) error {
 
 // DELETE /users/{id}
 func (api *API) DeleteUser(ctx echo.Context) error {
-	id, _ := ctx.Get(UserIDCtxKey).(string)
-
+	id := ctx.Param("id")
 	u, err := api.Repo.GetUserByPublicID(id)
-	if err != nil {
-		return echo.ErrBadRequest
+	if err != nil && err != sql.ErrNoRows {
+		return echo.ErrInternalServerError
+	} else if err == sql.ErrNoRows {
+		return echo.ErrBadGateway
 	}
 
 	_, err = api.Repo.DeleteUserByID(u.ID)
@@ -122,15 +130,18 @@ func (api *API) DeleteUser(ctx echo.Context) error {
 	return ctx.NoContent(http.StatusNoContent)
 }
 
-const UserIDCtxKey string = "userID"
+const CtxKeyUser string = "user"
 
-func RequireParamUserID(next echo.HandlerFunc) echo.HandlerFunc {
+func WithSessionUser(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
-		id := ctx.Param("id")
-		if id == "" {
-			return echo.ErrBadRequest
-		}
-		ctx.Set(UserIDCtxKey, id)
+		// TODO: set session user by auth token
+		var u model.User
+		ctx.Set(CtxKeyUser, u)
 		return nil
 	}
+}
+
+func SessionUserForm(ctx echo.Context) model.User {
+	u, _ := ctx.Get(CtxKeyUser).(model.User)
+	return u
 }
