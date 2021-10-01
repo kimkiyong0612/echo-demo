@@ -74,8 +74,6 @@ func (api *API) GetUser(ctx echo.Context) error {
 	u, err := api.Repo.GetUserByPublicID(id)
 	if err != nil && err != sql.ErrNoRows {
 		return echo.ErrInternalServerError
-	} else if err != sql.ErrNoRows {
-		return echo.ErrBadRequest
 	}
 
 	return ctx.JSON(http.StatusOK, NewUserResponse(u))
@@ -93,7 +91,7 @@ func (api *API) UpdateUser(ctx echo.Context) error {
 	if err != nil && err != sql.ErrNoRows {
 		return echo.ErrInternalServerError
 	} else if err != sql.ErrNoRows {
-		return echo.ErrBadGateway
+		return echo.ErrBadRequest
 	}
 
 	if data.UserName != nil {
@@ -120,7 +118,7 @@ func (api *API) DeleteUser(ctx echo.Context) error {
 	if err != nil && err != sql.ErrNoRows {
 		return echo.ErrInternalServerError
 	} else if err == sql.ErrNoRows {
-		return echo.ErrBadGateway
+		return echo.ErrBadRequest
 	}
 
 	_, err = api.Repo.DeleteUserByID(u.ID)
