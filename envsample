@@ -1,4 +1,4 @@
-GO_ENV=develop
+ENV=development
 PORT=1323
 # local
 DB_HOST="127.0.0.1"

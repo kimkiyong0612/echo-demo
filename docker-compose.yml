@@ -2,7 +2,7 @@ version: '3'
 
 services:
   # mysql
-  primal-honey-db:
+  echo-demo-db:
     image: mysql:8.0
     container_name: echo-demo-mysql8
     environment:

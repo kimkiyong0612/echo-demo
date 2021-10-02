@@ -19,3 +19,6 @@ api
 
 # envfile
 .env
+
+# mysql log
+logs
