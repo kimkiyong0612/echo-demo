@@ -7,11 +7,17 @@ import (
 	"net/url"
 	"os"
 
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
+
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
 	// connect to DB
 	db := sqlx.MustConnect("mysql", fmt.Sprintf(
@@ -46,6 +52,5 @@ func main() {
 	// Create router
 	e := NewRouter(api)
 	// run server
-	e.Logger.Fatal(e.Start(os.Getenv("PORT")))
-
+	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 }
