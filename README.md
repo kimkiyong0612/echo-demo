@@ -10,8 +10,13 @@ logrus https://github.com/sirupsen/logrus
 godotenv https://github.com/joho/godotenv
 ```
 
-## init
+## Set up
 - create volume for docker
 ```zsh
 docker volume create echo-demo-mysql8_volume
+```
+
+## Run APP
+```
+make run
 ```
