@@ -13,12 +13,12 @@ func NewRouter(api *web.API) *echo.Echo {
 	e := echo.New()
 
 	// Debug mode
-	// e.Debug = true
+	e.Debug = true
 
 	// Middleware TODO:auth
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(web.WithSessionUser)
+	// e.Use(web.WithSessionUser)
 
 	// Health check
 	e.GET("/health", healthCheckHandler)
@@ -28,7 +28,7 @@ func NewRouter(api *web.API) *echo.Echo {
 	e.GET("v1/users", api.GetAllUser)
 	e.POST("v1/users", api.CreateUser)
 	e.GET("v1/users/:id", api.GetUser)
-	e.PUT("v1/users/:id", api.UpdateUser)
+	e.PATCH("v1/users/:id", api.UpdateUser)
 	e.DELETE("v1/users/:id", api.DeleteUser)
 
 	return e

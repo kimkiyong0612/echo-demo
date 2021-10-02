@@ -15,15 +15,14 @@ type UserRepository interface {
 
 // User ...
 type User struct {
-	ID       int64  `db:"id, primarykey, autoincrement" json:"id"`
-	PublicID string `db:"public_id" json:"public_id"`
-
+	ID       int64  `db:"id"`
+	PublicID string `db:"public_id"`
 	// profile
-	Username string `db:"username" json:"username"`
+	Username string `db:"username"`
 
-	UpdatedAt time.Time  `db:"updated_at" json:"-"`
-	CreatedAt time.Time  `db:"created_at" json:"-"`
-	DeletedAt *time.Time `db:"deleted_at" json:"-"`
+	UpdatedAt time.Time  `db:"updated_at"`
+	CreatedAt time.Time  `db:"created_at"`
+	DeletedAt *time.Time `db:"deleted_at"`
 }
 
 // TODO: replace query builder(goqu)
@@ -40,23 +39,23 @@ const (
 
 	selectUserByIDQuery = `
 	SELECT * FROM users
-	WHERE deleted_at IS NULL AND id = ? ;
+	WHERE deleted_at IS NULL AND id = ?;
 	`
 
 	selectUserByPublicIDQuery = `
 	SELECT * FROM users
-	WHERE deleted_at IS NULL AND public_id = ? ;
+	WHERE deleted_at IS NULL AND public_id = ?;
 	`
 
 	updateUserByIDQuery = `
 		UPDATE users
-			SET username = :Username,
-			WHERE id = :ID
+			SET username = :username
+			WHERE id = :id;
 	`
 
 	deleteUserQuery = `
 		UPDATE users
-			SET deleted_at = NOW(),
+			SET deleted_at = NOW()
 			WHERE id = ?
 	`
 )
@@ -72,18 +71,18 @@ func (repo *SqlxRepository) CreateUser(username string) (int64, error) {
 }
 func (repo *SqlxRepository) GetUsers() ([]User, error) {
 	var users []User
-	err := repo.db.Get(&users, selectUsersQuery)
+	err := repo.db.Select(&users, selectUsersQuery)
 	return users, err
 
 }
 func (repo *SqlxRepository) GetUserByID(id int64) (User, error) {
-	var user User
+	user := User{}
 	err := repo.db.Get(&user, selectUserByIDQuery, id)
 	return user, err
 }
 
 func (repo *SqlxRepository) GetUserByPublicID(id string) (User, error) {
-	var user User
+	user := User{}
 	err := repo.db.Get(&user, selectUserByPublicIDQuery, id)
 	return user, err
 }

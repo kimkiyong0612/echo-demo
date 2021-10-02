@@ -10,7 +10,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/guregu/sqlx"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -43,6 +43,7 @@ func main() {
 	}
 
 	// create handler
+	// TODO:err handling to show error message
 	api, err := web.NewAPI(repo, appURL)
 	if err != nil {
 		log.Error("[ERROR] NewAPI:", err.Error())

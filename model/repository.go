@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/guregu/sqlx"
 )
 
 type Repository interface {
@@ -20,9 +20,7 @@ type sqlxDB interface {
 	sqlx.Preparer
 	sqlx.PreparerContext
 	Get(dest interface{}, query string, args ...interface{}) error
-	GetContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error
 	Select(dest interface{}, query string, args ...interface{}) error
-	SelectContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error
 	NamedExec(query string, arg interface{}) (sql.Result, error)
 	Rebind(query string) string
 }
