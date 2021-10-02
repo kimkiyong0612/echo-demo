@@ -6,6 +6,7 @@ require (
 	github.com/gavv/httpexpect/v2 v2.3.1
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/guregu/sqlx v1.101.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/joho/godotenv v1.4.0
 	github.com/labstack/echo v3.3.10+incompatible

@@ -17,4 +17,14 @@ func UserTest(e *httpexpect.Expect) {
 	// check
 	user1.ValueEqual("username", "test_user")
 	user1.Keys().ContainsOnly("ID", "username")
+
+	//get user
+	user1 = e.GET("/users").
+		WithJSON(map[string]string{
+			"username": "sample_user",
+		}).Expect().Status(http.StatusCreated).JSON().Object()
+
+	// check
+	user1.ValueEqual("username", "test_user")
+	user1.Keys().ContainsOnly("ID", "username")
 }

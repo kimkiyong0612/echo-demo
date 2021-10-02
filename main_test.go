@@ -11,7 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/guregu/sqlx"
 	"github.com/joho/godotenv"
 	migrate "github.com/rubenv/sql-migrate"
 	log "github.com/sirupsen/logrus"
@@ -34,7 +36,8 @@ func TestMain(t *testing.T) {
 		flag.Parse()
 	}
 
-	// load env file
+	testDB = fmt.Sprintf("test_%d", time.Now().UTC().Unix())
+
 	if os.Getenv("GO_ENV") == "" {
 		if err := godotenv.Load(); err != nil {
 			log.Fatal("Error loading .env file")
@@ -45,9 +48,6 @@ func TestMain(t *testing.T) {
 		}
 	}
 
-	testDB = fmt.Sprintf("test_%d", time.Now().UTC().Unix())
-
-	// DB connect
 	dbRoot := sqlx.MustConnect("mysql", fmt.Sprintf(
 		"%s:%s@tcp(%s)/?parseTime=true&columnsWithAlias=true&loc=%s",
 		os.Getenv("DB_USER"),
@@ -56,16 +56,16 @@ func TestMain(t *testing.T) {
 		"Asia%2FTokyo",
 	))
 
-	// create test table
 	dbRoot.MustExec("CREATE DATABASE " + testDB)
-	defer func() {
+	dropDB := func() {
 		if !*flagKeepDB {
 			dbRoot.MustExec("DROP DATABASE IF EXISTS " + testDB)
 		}
-	}()
+	}
 
+	// connect to coeto
 	db := sqlx.MustConnect("mysql", fmt.Sprintf(
-		"%s:%s@tcp(%s)/%s?parseTime=true&columnsWithAlias=true&loc=%s",
+		"%s:%s@tcp(%s)/%s?parseTime=true&columnsWithAlias=false&loc=%s",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASS"),
 		fmt.Sprintf("%s:%s", os.Getenv("DB_HOST"), os.Getenv("DB_PORT")),
@@ -79,7 +79,8 @@ func TestMain(t *testing.T) {
 	}
 	if _, err := migrate.Exec(db.DB, "mysql", migrations, migrate.Up); err != nil {
 		log.Println("[ERROR] Failed to migrate:", err)
-		return
+		dropDB()
+		os.Exit(1)
 	}
 
 	// create repository
@@ -96,14 +97,14 @@ func TestMain(t *testing.T) {
 	}
 
 	// create handler
-	testApi, err := web.NewAPI(repo, appURL)
+	testAPI, err = web.NewAPI(repo, appURL)
 	if err != nil {
 		log.Error("[ERROR] NewAPI:", err.Error())
 		return
 	}
 
 	// create router
-	router := NewRouter(testApi)
+	router := NewRouter(testAPI)
 
 	// run test server
 	server := httptest.NewServer(router)
