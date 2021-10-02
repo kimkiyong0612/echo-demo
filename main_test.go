@@ -120,4 +120,7 @@ func TestMain(t *testing.T) {
 
 	// run test
 	UserTest(e)
+
+	// clean up
+	dropDB()
 }
