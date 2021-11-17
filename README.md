@@ -1,5 +1,5 @@
 # echo-demo
-CRUD application
+Restful curd application
 > This architecture is affected flat-package(https://future-architect.github.io/articles/20201109/)
 
 ```
@@ -19,4 +19,9 @@ docker volume create echo-demo-mysql8_volume
 ## Run APP
 ```
 make run
+```
+
+## Test
+```
+go test
 ```
